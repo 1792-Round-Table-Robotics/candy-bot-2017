@@ -11,7 +11,6 @@
 #include <iostream>
 #include <iomanip>
 #include <unistd.h>
-#include "CANTalon.h"
 
 #define POT_MAX_VALUE 40
 #define POT_MIN_VALUE 10
@@ -85,6 +84,7 @@ class Robot: public frc::IterativeRobot {
 
 public:
 	Robot() {
+		class Victor *LeftMotors, *RightMotors, *ConveyorBelt;
 		//Inverts the left side
 		//robotDrive.SetInvertedMotor(RobotDrive::kFrontLeftMotor, true);
 		//robotDrive.SetInvertedMotor(RobotDrive::kRearLeftMotor, true);
@@ -121,16 +121,16 @@ private:
 
 	//x axis=4
 	//y axis=-5
-	frc::Joystick stick { 1 };         // Only joystick
+	frc::Joystick stick { 0 };         // Only joystick
 
 	AHRS *ahrs;
 
-	frc::RobotDrive robotDrive { 0, 1 };
+	frc::RobotDrive robotDrive { 8, 9 };
 
-	Victor *RM1 =new Victor(1);
-	Victor *LM1 =new Victor(2);
-	Victor *RM2 =new Victor(3);
-	Victor *LM2 =new Victor(4);
+	/*Victor *RightMotors =new Victor(GetChannelFromPin(PinType::PWMs, 8));
+	Victor *LeftMotors =new Victor(GetChannelFromPin(PinType::PWMs, 9));*/
+	Victor *ConveyorBelt =new Victor(2);
+
 
 	//Values for determining a deadband for control
 	float joystickDeadBandX = 0;
@@ -153,51 +153,54 @@ private:
 	;
 
 	void TeleopInit() override {
-
 	}
 	;
 
 	void TeleopPeriodic() override {
 
-		X = stick.GetRawAxis(4);
+		do {
+			robotDrive.ArcadeDrive(stick);
+		} while(IsOperatorControl() && IsEnabled());
+
+		/*X = stick.GetRawAxis(4);
 		Y = -stick.GetRawAxis(5);
+
+		//Conveyer Belt
+		if(stick.GetRawButton(1)){
+			ConveyorBelt->Set(.5);
+		}
+		//if()
+
+
+
 
 		//right= left/\ right\/       //
 		if(stick.GetRawAxis(4)>0){
-			RM1->Set(-.5);
-			RM2->Set(-.5);
-			LM1->Set(.5);
-			LM2->Set(.5);
+			RightMotors->Set(-.5);
+			LeftMotors->Set(.5);
 		}
 		//left= right/\ left\/        //
 		if(stick.GetRawAxis(4)<0){
-			RM1->Set(.5);
-		    RM2->Set(.5);
-			LM1->Set(-.5);
-			LM2->Set(-.5);
+			RightMotors->Set(.5);
+			LeftMotors->Set(-.5);
 	    }
 		//forward= right/\ left/\     //
 		if(-stick.GetRawAxis(5)>0){
-			RM1->Set(-.5);
-			RM2->Set(-.5);
-		    LM1->Set(-.5);
-			LM2->Set(-.5);
+			RightMotors->Set(-.5);
+			LeftMotors->Set(-.5);
 		}
 		//backwards= right\/ left\/   //
 		if(-stick.GetRawAxis(5)<0){
-			RM1->Set(.5);
-			RM2->Set(.5);
-			LM1->Set(.5);
-			LM2->Set(.5);
+			RightMotors->Set(.5);
+			LeftMotors->Set(.5);
 		}
 
+		frc::SmartDashboard::PutString("New Code", "This is new code");
 		frc::SmartDashboard::PutNumber("X",stick.GetRawAxis(4));
 		frc::SmartDashboard::PutNumber("Y",stick.GetRawAxis(5));
-		frc::SmartDashboard::PutNumber("Right Motor 1", RM1->Get());
-		frc::SmartDashboard::PutNumber("Right Motor 2", RM2->Get());
-		frc::SmartDashboard::PutNumber("Left Motor 1", LM1->Get());
-		frc::SmartDashboard::PutNumber("Left Motor 2", LM2->Get());
-
+		frc::SmartDashboard::PutNumber("Right Motors", RightMotors->Get());
+		frc::SmartDashboard::PutNumber("Left Motors", LeftMotors->Get());
+		*/
 	}
 
 	void TestPeriodic() override {
